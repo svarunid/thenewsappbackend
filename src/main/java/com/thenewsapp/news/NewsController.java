@@ -17,8 +17,8 @@ public class NewsController {
 
     @GetMapping(path = "/news")
     public DeferredResult<List<Article>> getEverything(@RequestParam String query,
-                                                                       @RequestParam(defaultValue = "relevancy") String sortBy,
-                                                                       @RequestParam(defaultValue = "1") String page){
+                                                       @RequestParam(defaultValue = "relevancy") String sortBy,
+                                                       @RequestParam(defaultValue = "1") String page){
         final DeferredResult<List<Article>> articles = new DeferredResult<>();
 
         newsApiClient.getEverything(
@@ -44,16 +44,14 @@ public class NewsController {
     }
 
     @GetMapping(path = "/feed")
-    public DeferredResult<List<Article>> getLocationBasedHeadlines(@RequestParam(required = false) String query,
-                                                                   @RequestParam(required = false) String category,
+    public DeferredResult<List<Article>> getLocationBasedHeadlines(@RequestParam(required = false) String category,
                                                                    @RequestParam(defaultValue = "1") String page){
         final DeferredResult<List<Article>> articles = new DeferredResult<>();
 
         newsApiClient.getTopHeadlines(
                 new TopHeadlinesRequest
                         .Builder()
-                        .q("Computer")
-                        .category("technology")
+                        .country("in")
                         .pageSize(20)
                         .page(Integer.parseInt(page))
                         .build(),
