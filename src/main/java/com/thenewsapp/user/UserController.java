@@ -1,5 +1,6 @@
 package com.thenewsapp.user;
 
+import com.thenewsapp.news.News;
 import com.thenewsapp.provider.JwtProvider;
 import lombok.Data;
 import lombok.Getter;
@@ -10,12 +11,13 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.AuthenticationException;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 
 import static org.springframework.http.ResponseEntity.ok;
 
@@ -43,19 +45,19 @@ public class UserController {
     BCryptPasswordEncoder bCryptPasswordEncoder;
 
     @PostMapping(path = "/signup")
-    public ResponseEntity signup(@RequestBody User user){
+    public ResponseEntity<String> signup(@RequestBody User user){
         user.setPassword(bCryptPasswordEncoder.encode(user.getPassword()));
         userRepository.save(user);
-        return ok("");
+        return ok("Success");
     }
 
     @PostMapping("/login")
-    public ResponseEntity login(@RequestBody AuthData data) {
+    public ResponseEntity<Map<String, String>> login(@RequestBody AuthData data) {
         try {
             String username = data.getUsername();
             authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(username, data.getPassword()));
             String token = jwtTokenProvider.createToken(username);
-            Map<Object, Object> model = new HashMap<>();
+            Map<String, String> model = new HashMap<>();
             model.put("Username", username);
             model.put("Token", token);
             return ok(model);
@@ -63,6 +65,22 @@ public class UserController {
         } catch (AuthenticationException e) {
             throw new BadCredentialsException("Invalid username/password supplied");
         }
+    }
+
+    @GetMapping("/{username}")
+    public ResponseEntity<User> getUser(@PathVariable String username) {
+        return ok(userRepository.findByUsername(username).get());
+    }
+
+    @GetMapping("/{username}/saved")
+    public  ResponseEntity<Set<News>> getNews(@PathVariable String username){
+        return ok(userRepository.findByUsername(username).get().getNews());
+    }
+
+    @DeleteMapping("/{username}")
+    @Transactional
+    public void deleteUser(@PathVariable String username){
+        userRepository.deleteByUsername(username);
     }
 }
 

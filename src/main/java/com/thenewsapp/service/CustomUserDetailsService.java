@@ -22,6 +22,7 @@ public class CustomUserDetailsService implements UserDetailsService {
         Pattern pattern = Pattern.compile("[a-z0-9]+@[a-z]+\\.[a-z]{2,3}");
         Matcher matcher = pattern.matcher(username);
         com.thenewsapp.user.User user;
+
         if(matcher.matches()) {
              user = userRepository
                      .findByEmail(username)
@@ -31,7 +32,6 @@ public class CustomUserDetailsService implements UserDetailsService {
                     .findByUsername(username)
                     .orElseThrow(() -> new UsernameNotFoundException("Username: " + username + " not found"));
         }
-
         return new User(user.getUsername(),user.getPassword(),new ArrayList<>());
     }
 }

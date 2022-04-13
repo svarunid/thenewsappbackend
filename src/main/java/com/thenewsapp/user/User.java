@@ -1,15 +1,18 @@
 package com.thenewsapp.user;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.thenewsapp.news.News;
 import lombok.Getter;
 import lombok.Setter;
 import org.hibernate.annotations.GenericGenerator;
 
 import javax.persistence.*;
+import java.util.Set;
 
 @Getter
 @Setter
 @Entity
-@Table(name = "user")
+@Table(name = "users")
 public class User {
     @Id
     @GeneratedValue(generator = "uuid")
@@ -34,4 +37,8 @@ public class User {
 
     @Column(name = "password")
     private String password;
+
+    @ManyToMany(mappedBy = "users", cascade = CascadeType.REMOVE)
+    @JsonIgnore
+    Set<News> news;
 }

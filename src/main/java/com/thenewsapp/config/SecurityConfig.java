@@ -13,7 +13,6 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.config.http.SessionCreationPolicy;
-import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.DefaultSecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
@@ -34,21 +33,20 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     public AuthenticationManager authenticationManagerBean() throws Exception {
         return super.authenticationManagerBean();
     }
+
     @Override
     protected void configure(HttpSecurity http) throws Exception {
-
         http
                 .httpBasic().disable()
                 .csrf().disable()
                 .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 .and()
                 .authorizeRequests()
-                .antMatchers("/user/login").permitAll()
+                .antMatchers("/user/login", "/user/signup").permitAll()
                 .antMatchers(HttpMethod.GET, "/news").permitAll()
                 .anyRequest().authenticated()
                 .and()
                 .apply(new JwtConfigurer(jwtProvider));
-
     }
 
     @Override
@@ -58,10 +56,12 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 }
 
 class JwtConfigurer extends SecurityConfigurerAdapter<DefaultSecurityFilterChain, HttpSecurity> {
-    private JwtProvider jwtProvider;
+
+    private final JwtProvider jwtProvider;
     public JwtConfigurer(JwtProvider jwtProvider) {
         this.jwtProvider = jwtProvider;
     }
+
     @Override
     public void configure(HttpSecurity http) throws Exception {
         JwtFilter customFilter = new JwtFilter(jwtProvider);
