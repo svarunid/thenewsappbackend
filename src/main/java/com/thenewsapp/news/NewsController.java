@@ -9,10 +9,12 @@ import com.thenewsapp.user.User;
 import com.thenewsapp.user.UserRepository;
 import lombok.Data;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.context.request.async.DeferredResult;
 
+import javax.annotation.PostConstruct;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -33,7 +35,14 @@ public class NewsController {
     @Autowired
     private UserRepository userRepository;
 
-    NewsApiClient newsApiClient = new NewsApiClient("C6f09e34ea6e46ba9417e56cec6198df");
+    @Value("${news-api.key}")
+    private String apiKey;
+
+    private NewsApiClient newsApiClient;
+    @PostConstruct
+    void init(){
+        newsApiClient = new NewsApiClient(apiKey);
+    }
 
     @GetMapping(path = "/news")
     public DeferredResult<List<Article>> getEverything(@RequestParam String query,

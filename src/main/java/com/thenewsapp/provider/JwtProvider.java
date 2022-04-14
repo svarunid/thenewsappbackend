@@ -3,6 +3,7 @@ package com.thenewsapp.provider;
 import com.thenewsapp.service.CustomUserDetailsService;
 import io.jsonwebtoken.*;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -15,15 +16,17 @@ import java.util.Date;
 @Component
 public class JwtProvider {
 
-    private final String secret = System.getenv("SPRING_JWT_SECRET_KEY");
+    @Value("${jwt.secret}")
+    private String secret;
 
-    private final long validityInMilli = Long.parseLong(System.getenv("SPRING_JWT_EXP"));
+    @Value("${jwt.exp}")
+    private String validityInMilli;
 
     @Autowired
     private CustomUserDetailsService userDetailsService;
 
     public String createToken(String username){
-        Date validity = new Date(System.currentTimeMillis() + validityInMilli);
+        Date validity = new Date(System.currentTimeMillis() + Long.parseLong(validityInMilli));
 
         return Jwts
                 .builder()
