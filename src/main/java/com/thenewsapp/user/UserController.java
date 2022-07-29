@@ -19,6 +19,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
+import static org.springframework.http.ResponseEntity.badRequest;
 import static org.springframework.http.ResponseEntity.ok;
 
 @Data
@@ -27,10 +28,16 @@ import static org.springframework.http.ResponseEntity.ok;
 class AuthData{
     private String username;
     private String password;
+
+    public AuthData(String username, String password){
+        this.username = username;
+        this.password = password;
+    }
 }
 
 @RestController
 @RequestMapping(path="/user")
+@CrossOrigin
 public class UserController {
     @Autowired
     AuthenticationManager authenticationManager;
@@ -45,10 +52,15 @@ public class UserController {
     BCryptPasswordEncoder bCryptPasswordEncoder;
 
     @PostMapping(path = "/signup")
-    public ResponseEntity<String> signup(@RequestBody User user){
-        user.setPassword(bCryptPasswordEncoder.encode(user.getPassword()));
-        userRepository.save(user);
-        return ok("Success");
+    public ResponseEntity signup(@RequestBody User user){
+        boolean existingUser = userRepository.findByUsername(user.getUsername()).isPresent();
+        if(existingUser){
+            return badRequest().body("User already existing");
+        }
+        User signupUser = new User(user);
+        signupUser.setPassword(bCryptPasswordEncoder.encode(user.getPassword()));
+        userRepository.save(signupUser);
+        return login(new AuthData(user.getUsername(), user.getPassword()));
     }
 
     @PostMapping("/login")

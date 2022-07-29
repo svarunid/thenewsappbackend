@@ -2,7 +2,9 @@ package com.thenewsapp.user;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.thenewsapp.news.News;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.hibernate.annotations.GenericGenerator;
 
@@ -13,6 +15,8 @@ import java.util.Set;
 @Setter
 @Entity
 @Table(name = "users")
+@NoArgsConstructor
+@AllArgsConstructor
 public class User {
     @Id
     @GeneratedValue(generator = "uuid")
@@ -41,4 +45,13 @@ public class User {
     @ManyToMany(mappedBy = "users", cascade = CascadeType.REMOVE)
     @JsonIgnore
     Set<News> news;
+
+    public User(User anotherUser){
+        this.id = anotherUser.getId();
+        this.email = anotherUser.getEmail();
+        this.password = anotherUser.getPassword();
+        this.firstName = anotherUser.getFirstName();
+        this.lastName = anotherUser.getLastName();
+        this.username = anotherUser.getUsername();
+    }
 }

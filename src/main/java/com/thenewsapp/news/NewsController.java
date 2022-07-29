@@ -28,6 +28,7 @@ class NewsData{
 }
 
 @RestController
+@CrossOrigin
 public class NewsController {
     @Autowired
     private NewsRepository newsRepository;
@@ -83,7 +84,6 @@ public class NewsController {
                         .Builder()
                         .country(country)
                         .category(category)
-                        .pageSize(20)
                         .page(Integer.parseInt(page))
                         .build(),
                 new NewsApiClient.ArticlesResponseCallback() {
@@ -111,6 +111,6 @@ public class NewsController {
         users.add(userRepository.findByUsername(newsData.getUsername()).get());
         news.setUsers(users);
         newsRepository.save(news);
-        return ok("something");
+        return ok("Saved Successfully");
     }
 }
